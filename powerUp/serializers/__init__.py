@@ -1,0 +1,3 @@
+from .ProdutoSerializer import ProdutoSerializer
+from .ClienteSerializer import ClienteSerializer
+from .PedidoSerializer import PedidoSerializer, PedidoItemSerializer
