@@ -22,7 +22,7 @@ from powerUp.views.LoteView import LoteViewSet
 
 router = DefaultRouter()
 router.register(r'produtos', ProdutoViewSet)
-router.register(r'clientes', ClienteViewSet)
+router.register(r'clientes', ClienteViewSet, basename='cliente')
 router.register(r'enderecos', EnderecoViewSet, basename='endereco')
 router.register(r'cartoes', CartaoViewSet, basename='cartao')
 router.register(r'favoritos', FavoritoViewSet, basename='favorito')

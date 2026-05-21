@@ -12,6 +12,7 @@ from decimal import Decimal
 from powerUp.models import Carrinho, Pedido, PedidoItem, Endereco, Cartao, SolicitacaoDevolucao, ItemDevolvido, Lote
 from powerUp.serializers.PedidoSerializer import PedidoSerializer
 from powerUp.serializers.DevolucaoSerializer import SolicitacaoDevolucaoSerializer
+from powerUp.utils import validar_arquivo_devolucao
 
 class PedidoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
@@ -162,6 +163,12 @@ class PedidoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         motivo = request.data.get('motivo')
         arquivo = request.data.get('arquivo', None) 
         itens_json_string = request.data.get('itens')
+
+        if arquivo:
+            try:
+                validar_arquivo_devolucao(arquivo)
+            except ValidationError as e:
+                return Response({"erro": e.detail[0]}, status=status.HTTP_400_BAD_REQUEST)
 
         if not motivo or not itens_json_string:
             return Response({"erro": "Motivo e itens são obrigatórios."}, status=status.HTTP_400_BAD_REQUEST)

@@ -5,10 +5,22 @@ from django.contrib.auth.models import User
 from powerUp.models import Cliente 
 from powerUp.serializers.ClienteSerializer import ClienteSerializer 
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 class ClienteViewSet(viewsets.ModelViewSet): 
-    queryset = Cliente.objects.all() 
-    serializer_class = ClienteSerializer 
+    serializer_class = ClienteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(user, 'cliente') and user.cliente.perfil == 'admin':
+            return Cliente.objects.all()
+        return Cliente.objects.filter(user=user)
+    def get_permissions(self):
+        # Cadastro é público, mas edição/visualização exige auth
+        if self.action == 'create':
+            return [AllowAny()]
+        return [IsAuthenticated()]
     
     @action(detail=False, methods=['delete'], url_path='excluir-conta', permission_classes=[IsAuthenticated]) 
     def excluir_conta(self, request): 

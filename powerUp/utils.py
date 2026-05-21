@@ -35,3 +35,29 @@ def custom_exception_handler(exc, context):
         )
 
     return response
+
+
+# --- VALIDAÇÃO DE UPLOAD SEGURO (Devoluções) ---
+import filetype
+
+ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
+MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB
+
+def validar_arquivo_devolucao(arquivo):
+    if not arquivo:
+        return
+    
+    if arquivo.size > MAX_UPLOAD_SIZE:
+        raise ValidationError("Arquivo muito grande. Máximo 5MB.")
+        
+    try:
+        # Lê os primeiros 2048 bytes para analisar a assinatura binária
+        kind = filetype.guess(arquivo.read(2048))
+        arquivo.seek(0)
+        
+        if kind is None or kind.mime not in ALLOWED_MIME_TYPES:
+            raise ValidationError("Tipo de arquivo não permitido ou corrompido.")
+    except Exception as e:
+        if isinstance(e, ValidationError):
+            raise e
+        raise ValidationError("Erro ao validar o formato do arquivo.")

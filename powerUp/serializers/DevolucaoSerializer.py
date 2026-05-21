@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from powerUp.models import SolicitacaoDevolucao, ItemDevolvido, PedidoItem
+from powerUp.utils import validar_arquivo_devolucao
 
 class ItemDevolvidoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -8,6 +9,10 @@ class ItemDevolvidoSerializer(serializers.ModelSerializer):
 
 
 class SolicitacaoDevolucaoSerializer(serializers.ModelSerializer):
+    def validate_arquivo(self, value):
+        validar_arquivo_devolucao(value)
+        return value
+
     itens = ItemDevolvidoSerializer(many=True, read_only=True)
     
     pedido_id = serializers.IntegerField(source='pedido.id', read_only=True)
