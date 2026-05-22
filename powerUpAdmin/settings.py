@@ -6,11 +6,11 @@ load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-gn1vygx&ej1f0j6wsrr&@%1m^m!4beeq9qvj2m4uia9$v2ums2'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 
 # Application definition
@@ -97,12 +97,25 @@ TEMPLATES = [
 WSGI_APPLICATION = 'powerUpAdmin.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Usa PostgreSQL se as variáveis de ambiente estiverem definidas (Docker), senão usa SQLite (dev local)
+if os.getenv('DB_ENGINE'):
+    DATABASES = {
+        'default': {
+            'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+            'NAME': os.getenv('DB_NAME', 'powerup'),
+            'USER': os.getenv('DB_USER', 'powerup_user'),
+            'PASSWORD': os.getenv('DB_PASSWORD', 'powerup_pass'),
+            'HOST': os.getenv('DB_HOST', 'db'),
+            'PORT': os.getenv('DB_PORT', '5432'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # Validadores de senha (Comentados para facilitar testes em DEV)
 AUTH_PASSWORD_VALIDATORS = [

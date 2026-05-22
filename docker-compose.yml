@@ -1,0 +1,65 @@
+services:
+
+  # --- SERVIÇO DO BANCO DE DADOS (POSTGRESQL) ---
+  db:
+    image: postgres:16-alpine
+    container_name: powerup_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- SERVIÇO DO BACKEND (DJANGO REST) ---
+  backend:
+    container_name: django_backend
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - DB_HOST=db  # Sobrescreve o DB_HOST do .env para apontar ao serviço Docker
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # --- SERVIÇO DO FRONTEND (NEXT.JS) ---
+  frontend:
+    container_name: nextjs_frontend
+    restart: always
+    build:
+      context: ../powerup-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../powerup-frontend:/app
+      - /app/node_modules
+    environment:
+      # Para chamadas no BROWSER do usuário, usa localhost (acessível na máquina dele)
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+      # Para chamadas Server-Side (SSR/Server Actions), usa o nome do serviço interno
+      - API_URL=http://backend:8000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
