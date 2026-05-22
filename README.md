@@ -30,7 +30,7 @@ Entre na pasta do backend e crie o arquivo de configuração de ambiente:
 
 ```bash
 cd powerup-backend
-cp .env.example .env
+cp .env.example .env  # No Windows (CMD), use: copy .env.example .env
 ```
 
 Edite o arquivo `.env` gerado e preencha com seus dados reais:
