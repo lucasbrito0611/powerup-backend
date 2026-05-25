@@ -21,8 +21,9 @@ class EmailTokenObtainSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise serializers.ValidationError("Email ou senha incorretos.")
 
-        # Autentica usando username e senha
-        user = authenticate(username=user_obj.username, password=password)
+        # Autentica usando username, senha e o request para o django-axes
+        request = self.context.get('request')
+        user = authenticate(request=request, username=user_obj.username, password=password)
         if not user:
             raise serializers.ValidationError("Email ou senha incorretos.")
 
@@ -36,10 +37,8 @@ class EmailTokenObtainSerializer(serializers.Serializer):
             cliente_id = cliente.id
             nome = cliente.nome
             perfil = cliente.perfil
-            cpf = cliente.cpf
-            telefone = cliente.telefone_celular
             
-        except:
+        except Exception:
             nome = user.username
             perfil = 'user'
             cliente_id = None
@@ -51,15 +50,13 @@ class EmailTokenObtainSerializer(serializers.Serializer):
             'nome': nome,
             'email': user.email,
             'perfil': perfil,
-            'cpf': cpf,
-            'telefone': telefone,
         }
 
 class CustomTokenObtainPairView(APIView):
     serializer_class = EmailTokenObtainSerializer
 
     def post(self, request, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
+        serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         return Response(serializer.validated_data, status=status.HTTP_200_OK)
 

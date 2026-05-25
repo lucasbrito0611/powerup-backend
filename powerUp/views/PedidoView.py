@@ -192,8 +192,8 @@ class PedidoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
         if not itens_para_devolver:
             return Response({"erro": "Nenhum item válido foi selecionado para devolução."}, status=status.HTTP_400_BAD_REQUEST)
 
-        solicitacao = SolicitacaoDevolucao.objects.create(pedido=pedido, user=request.user, motivo=motivo, arquivo=arquivo,  status='1')
-
+        # 1. Validar todos os itens e quantidades antes de criar a solicitação no banco
+        itens_devolucao_validos = []
         total_a_devolver = Decimal('0.00')
 
         for item_data in itens_para_devolver:
@@ -204,19 +204,34 @@ class PedidoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
                 pedido_item = PedidoItem.objects.get(id=pedido_item_id, pedido=pedido)
                 
                 if quantidade > pedido_item.quantidade:
-                    solicitacao.delete() 
                     return Response({"erro": f"Quantidade inválida para o item {pedido_item.produto.nome}."}, status=status.HTTP_400_BAD_REQUEST)
                 
-                ItemDevolvido.objects.create(solicitacao=solicitacao, pedido_item=pedido_item, quantidade=quantidade)
-                
+                itens_devolucao_validos.append((pedido_item, quantidade))
                 total_a_devolver += (Decimal(pedido_item.preco) * quantidade)
                 
             except PedidoItem.DoesNotExist:
-                solicitacao.delete() 
                 return Response({"erro": "Item de pedido inválido ou não pertence a este pedido."}, status=status.HTTP_400_BAD_REQUEST)
             
-        solicitacao.total = total_a_devolver
-        solicitacao.save()
+        # 2. Criar a solicitação e os itens associados de forma atômica no banco de dados
+        try:
+            with transaction.atomic():
+                solicitacao = SolicitacaoDevolucao.objects.create(
+                    pedido=pedido, 
+                    user=request.user, 
+                    motivo=motivo, 
+                    arquivo=arquivo,  
+                    status='1',
+                    total=total_a_devolver
+                )
+                
+                for pedido_item, quantidade in itens_devolucao_validos:
+                    ItemDevolvido.objects.create(
+                        solicitacao=solicitacao, 
+                        pedido_item=pedido_item, 
+                        quantidade=quantidade
+                    )
+        except Exception as e:
+            return Response({"erro": f"Erro interno ao salvar a devolução: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         serializer = SolicitacaoDevolucaoSerializer(solicitacao) 
         return Response(serializer.data, status=status.HTTP_201_CREATED)

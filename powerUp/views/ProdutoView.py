@@ -37,10 +37,17 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     def avaliar(self, request, pk=None):
         produto = self.get_object()
         user = request.user
-        nota = request.data.get('nota')
+        nota_raw = request.data.get('nota')
 
-        if not nota:
+        if nota_raw is None:
             return Response({"erro": "A nota é obrigatória."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            nota = int(nota_raw)
+            if nota not in range(1, 6):
+                raise ValueError()
+        except (ValueError, TypeError):
+            return Response({"erro": "A nota deve ser um número inteiro entre 1 e 5."}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
             cliente = Cliente.objects.get(user=user)
