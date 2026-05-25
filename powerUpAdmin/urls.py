@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView
+from powerUp.views.RefreshCookieView import RefreshCookieView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -12,7 +12,8 @@ from powerUp.views.PromocoesView import PromocoesViewSet
 from powerUp.views.EnderecoView import EnderecoViewSet
 from powerUp.views.CartaoView import CartaoViewSet
 from powerUp.views.RedefinirSenhaView import RedefinirSenhaView
-from powerUp.views.LoginView import CustomTokenObtainPairView
+from powerUp.views.LoginView import CustomTokenObtainPairView, MeView
+from powerUp.views.LogoutView import LogoutView
 from powerUp.views.CarrinhoView import CarrinhoAPIView, CarrinhoMigracaoView
 from powerUp.views.PedidoView import PedidoViewSet
 from powerUp.views.DevolucaoView import DevolucaoViewSet
@@ -36,7 +37,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     
     path('login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('refresh/', RefreshCookieView.as_view(), name='token_refresh'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('me/', MeView.as_view(), name='me'),
     path('redefinir-senha/', RedefinirSenhaView.as_view(), name='redefinir-senha'),
     
     # --- ROTAS DE NEGÓCIO ---

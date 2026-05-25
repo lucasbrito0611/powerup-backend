@@ -31,12 +31,13 @@ INSTALLED_APPS = [
     'django_filters',
     'axes',
     'powerUp',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'powerUp.utils.custom_exception_handler',
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "powerUp.authentication.JWTCookieAuthentication",
     ],
 }
 
@@ -79,6 +80,34 @@ CORS_ALLOWED_ORIGINS = os.environ.get(
     'CORS_ALLOWED_ORIGINS',
     'http://localhost:3000'
 ).split(',')
+
+# Necessário para que o navegador envie cookies em requisições cross-origin
+CORS_ALLOW_CREDENTIALS = True
+
+# Headers permitidos nas requisições cross-origin (inclui padrões do DRF + cookie)
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'authorization',
+    'content-type',
+    'origin',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+# --- CONFIGURAÇÃO JWT ---
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': False,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+}
+
+# Cookie HttpOnly — secure=True apenas em produção (HTTPS)
+JWT_COOKIE_SECURE = not DEBUG   # False em dev, True em prod
+JWT_COOKIE_SAMESITE = 'Lax'    # Lax funciona em localhost; Strict requer mesma origem
 
 AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',
