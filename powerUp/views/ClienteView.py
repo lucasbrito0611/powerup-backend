@@ -27,8 +27,10 @@ class ClienteViewSet(viewsets.ModelViewSet):
         try: 
             user = request.user 
             cliente = Cliente.objects.get(user=user) 
-            cliente.delete() 
-            user.delete() 
+            
+            user.is_active = False
+            user.save()
+            
             return Response({"detail": "Conta excluída com sucesso."}, status=status.HTTP_200_OK) 
         
         except Cliente.DoesNotExist: 

@@ -5,10 +5,16 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from powerUp.models import Produto, PedidoItem, Cliente, AvaliacaoProduto
 from powerUp.serializers.ProdutoSerializer import ProdutoSerializer
+from powerUp.permissions import IsPerfilAdmin
 
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
     serializer_class = ProdutoSerializer
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'mais_vendidos']:
+            return [AllowAny()]
+        return [IsPerfilAdmin()]
     
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def comprar_novamente(self, request):
