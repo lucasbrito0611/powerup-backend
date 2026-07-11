@@ -20,6 +20,7 @@ class PedidoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.G
     search_fields = ['id', 'user__nome', 'status']
     ordering_fields = ['id', 'total', 'status', 'dt_hora']
     ordering = ['-dt_hora']
+    filterset_fields = ['status']
 
     def get_queryset(self):
         user = self.request.user
