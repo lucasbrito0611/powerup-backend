@@ -10,6 +10,7 @@ class DevolucaoViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'head', 'options']
 
     serializer_class = SolicitacaoDevolucaoSerializer
+    pagination_class = None
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):

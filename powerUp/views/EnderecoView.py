@@ -7,6 +7,7 @@ from rest_framework import status
 
 class EnderecoViewSet(viewsets.ModelViewSet):
     serializer_class = EnderecoSerializer
+    pagination_class = None
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):

@@ -17,6 +17,9 @@ from powerUp.utils import validar_arquivo_devolucao
 class PedidoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = PedidoSerializer
+    search_fields = ['id', 'user__nome', 'status']
+    ordering_fields = ['id', 'total', 'status', 'dt_hora']
+    ordering = ['-dt_hora']
 
     def get_queryset(self):
         user = self.request.user

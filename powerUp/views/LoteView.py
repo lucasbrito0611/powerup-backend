@@ -11,6 +11,7 @@ class LoteViewSet(viewsets.ModelViewSet):
     queryset = Lote.objects.all().order_by('validade') # Ordena por validade padrão
     serializer_class = LoteSerializer
     permission_classes = [IsPerfilAdmin] # Apenas admin pode mexer no estoque
+    pagination_class = None
     
     # Configurações de filtro
     filter_backends = [DjangoFilterBackend, OrderingFilter]

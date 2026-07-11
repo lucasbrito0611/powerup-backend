@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 
 class ClienteViewSet(viewsets.ModelViewSet): 
     serializer_class = ClienteSerializer
+    pagination_class = None
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):

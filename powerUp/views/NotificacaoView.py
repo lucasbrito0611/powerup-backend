@@ -7,6 +7,7 @@ from powerUp.serializers.NotificacaoSerializer import NotificacaoSerializer
 
 class NotificacaoViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = NotificacaoSerializer
+    pagination_class = None
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):

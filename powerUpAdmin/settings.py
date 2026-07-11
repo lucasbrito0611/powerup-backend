@@ -39,6 +39,12 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "powerUp.authentication.JWTCookieAuthentication",
     ],
+    'DEFAULT_PAGINATION_CLASS': 'powerUp.pagination.StandardResultsSetPagination',
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
 }
 
 DJOSER = {

@@ -10,6 +10,7 @@ from powerUp.permissions import IsPerfilAdmin
 class ProdutoViewSet(viewsets.ModelViewSet):
     queryset = Produto.objects.all()
     serializer_class = ProdutoSerializer
+    pagination_class = None
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'mais_vendidos']:
