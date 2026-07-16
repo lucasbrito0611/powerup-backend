@@ -4,8 +4,10 @@ from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import action 
+from powerUp.permissions import IsPerfilAdmin
 from django.db import transaction
-from django.db.models import Sum, F, Q
+from django.db.models import Sum, F, Q, CharField
+from django.db.models.functions import Cast
 from django.utils import timezone
 from decimal import Decimal
 
@@ -14,19 +16,26 @@ from powerUp.serializers.PedidoSerializer import PedidoSerializer
 from powerUp.serializers.DevolucaoSerializer import SolicitacaoDevolucaoSerializer
 from powerUp.utils import validar_arquivo_devolucao
 
-class PedidoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+class PedidoViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, mixins.UpdateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet):
     permission_classes = [IsAuthenticated]
     serializer_class = PedidoSerializer
-    search_fields = ['id', 'user__nome', 'status']
+    search_fields = ['id_str', 'user__cliente__nome']
     ordering_fields = ['id', 'total', 'status', 'dt_hora']
     ordering = ['-dt_hora']
     filterset_fields = ['status']
 
+    def get_permissions(self):
+        if self.action in ['destroy', 'update', 'partial_update']:
+            return [IsPerfilAdmin()]
+        return [permission() for permission in self.permission_classes]
+
     def get_queryset(self):
         user = self.request.user
         if hasattr(user, 'cliente') and user.cliente.perfil == 'admin':
-            return Pedido.objects.all().order_by('-dt_hora')
-        return Pedido.objects.filter(user=user).order_by('-dt_hora')
+            queryset = Pedido.objects.all()
+        else:
+            queryset = Pedido.objects.filter(user=user)
+        return queryset.annotate(id_str=Cast('id', output_field=CharField(max_length=20))).order_by('-dt_hora')
 
     def create(self, request, *args, **kwargs):
         user = request.user

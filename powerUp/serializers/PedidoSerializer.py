@@ -28,7 +28,7 @@ class PedidoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pedido
         fields = ['id', 'user', 'user_nome', 'endereco', 'cartao', 'total', 'status', 'dt_hora', 'itens', 'devolucao']
-        read_only_fields = ['user', 'total', 'status', 'dt_hora', 'itens']
+        read_only_fields = ['user', 'total', 'dt_hora', 'itens']
         
     def get_devolucao(self, obj):
         solicitacao = obj.devolucoes.first()
