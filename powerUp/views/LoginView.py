@@ -56,6 +56,7 @@ class EmailTokenObtainSerializer(serializers.Serializer):
             'nome': nome,
             'email': user.email,
             'perfil': perfil,
+            'has_password': user.has_usable_password(),
         }
 
 
@@ -124,6 +125,7 @@ class MeView(APIView):
                 'nome': cliente.nome,
                 'email': user.email,
                 'perfil': cliente.perfil,
+                'has_password': user.has_usable_password(),
             })
         except Exception:
             return Response({
@@ -131,4 +133,5 @@ class MeView(APIView):
                 'nome': user.username,
                 'email': user.email,
                 'perfil': 'user',
+                'has_password': user.has_usable_password(),
             })

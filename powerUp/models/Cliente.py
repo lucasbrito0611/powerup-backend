@@ -9,14 +9,15 @@ class Cliente(models.Model):
     perfil = models.CharField(null=False, max_length=10, choices=PERFIL, default='user')
     nome = models.CharField(null=False, max_length=100)
     cpf = models.CharField(
-        null=False, 
+        null=True,
+        blank=True,
         max_length=15, 
         unique=True,
         error_messages={
             "unique": "Este CPF já está em uso."
         }
     )
-    telefone_celular = models.CharField(null=False, max_length=15)
+    telefone_celular = models.CharField(null=True, blank=True, max_length=15)
 
     def __str__(self):
         return f'{self.nome}'

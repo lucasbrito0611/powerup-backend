@@ -199,3 +199,6 @@ MEDIA_ROOT= os.path.join(BASE_DIR, 'media')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 SITE_ID = 1
+
+# --- CONFIGURAÇÃO GOOGLE OAUTH ---
+GOOGLE_OAUTH_CLIENT_ID = os.getenv('GOOGLE_OAUTH_CLIENT_ID')

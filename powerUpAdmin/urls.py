@@ -14,6 +14,7 @@ from powerUp.views.CartaoView import CartaoViewSet
 from powerUp.views.RedefinirSenhaView import RedefinirSenhaView
 from powerUp.views.LoginView import CustomTokenObtainPairView, MeView
 from powerUp.views.LogoutView import LogoutView
+from powerUp.views.GoogleLoginView import GoogleLoginView
 from powerUp.views.CarrinhoView import CarrinhoAPIView, CarrinhoMigracaoView
 from powerUp.views.PedidoView import PedidoViewSet
 from powerUp.views.DevolucaoView import DevolucaoViewSet
@@ -40,6 +41,7 @@ urlpatterns = [
     path('refresh/', RefreshCookieView.as_view(), name='token_refresh'),
     path('logout/', LogoutView.as_view(), name='logout'),
     path('me/', MeView.as_view(), name='me'),
+    path('auth/google/', GoogleLoginView.as_view(), name='google-login'),
     path('redefinir-senha/', RedefinirSenhaView.as_view(), name='redefinir-senha'),
     
     # --- ROTAS DE NEGÓCIO ---
