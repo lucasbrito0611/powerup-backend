@@ -5,7 +5,8 @@ from powerUp.models import Produto, Favorito, Cliente, AvaliacaoProduto
 class ProdutoSerializer(serializers.ModelSerializer):
     preco_calculado = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
-    imagem = serializers.SerializerMethodField() 
+    imagem = serializers.SerializerMethodField()
+    imagem_upload = serializers.ImageField(write_only=True, required=False, source='imagem')
     estoque = serializers.IntegerField(read_only=True)
     media_avaliacoes = serializers.SerializerMethodField()
     total_avaliacoes = serializers.SerializerMethodField()
@@ -20,6 +21,7 @@ class ProdutoSerializer(serializers.ModelSerializer):
             'preco', 
             'descricao', 
             'imagem',
+            'imagem_upload',
             'porcentagem_desconto', 
             'categoria',
             'preco_calculado', 
