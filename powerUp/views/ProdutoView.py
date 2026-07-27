@@ -1,4 +1,6 @@
-from django.db.models import Sum
+from django.db.models import Sum, Q
+from django.db.models.functions import Coalesce
+from django.utils import timezone
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -12,8 +14,20 @@ class ProdutoViewSet(viewsets.ModelViewSet):
     serializer_class = ProdutoSerializer
     search_fields = ['nome', 'categoria']
     filterset_fields = ['categoria']
-    ordering_fields = ['id', 'nome', 'preco', 'porcentagem_desconto', 'categoria']
+    ordering_fields = ['id', 'nome', 'preco', 'porcentagem_desconto', 'categoria', 'estoque']
     ordering = ['id']
+
+    def get_queryset(self):
+        hoje = timezone.now().date()
+        return Produto.objects.annotate(
+            estoque=Coalesce(
+                Sum(
+                    'lotes__quantidade',
+                    filter=Q(lotes__validade__gte=hoje) | Q(lotes__validade__isnull=True)
+                ),
+                0
+            )
+        )
 
     def get_permissions(self):
         if self.action in ['list', 'retrieve', 'mais_vendidos']:

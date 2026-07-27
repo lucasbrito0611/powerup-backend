@@ -6,7 +6,7 @@ class ProdutoSerializer(serializers.ModelSerializer):
     preco_calculado = serializers.SerializerMethodField()
     is_favorited = serializers.SerializerMethodField()
     imagem = serializers.SerializerMethodField()
-    imagem_upload = serializers.ImageField(write_only=True, required=False, source='imagem')
+    imagem_upload = serializers.ImageField(write_only=True, source='imagem')
     estoque = serializers.IntegerField(read_only=True)
     media_avaliacoes = serializers.SerializerMethodField()
     total_avaliacoes = serializers.SerializerMethodField()

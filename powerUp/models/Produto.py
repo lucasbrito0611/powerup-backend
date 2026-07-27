@@ -13,7 +13,7 @@ class Produto(models.Model):
     nome = models.CharField(null=False, max_length=100)
     preco = models.FloatField(null=False)
     descricao = models.TextField(null=False)
-    imagem = models.ImageField(null=False, blank=True, upload_to='produtos/')
+    imagem = models.ImageField(null=False, blank=False, upload_to='produtos/')
     porcentagem_desconto = models.IntegerField(null=True, default=0)
     categoria = models.CharField(max_length=50, choices=CATEGORIAS, default='suplementos')
 
@@ -25,12 +25,18 @@ class Produto(models.Model):
         
     @property
     def estoque(self):
+        if hasattr(self, '_estoque'):
+            return self._estoque
         hoje = timezone.now().date()
         
         # Lógica: Vencimento >= Hoje OU Vencimento é Nulo (não perecível)
         return self.lotes.filter(
             Q(validade__gte=hoje) | Q(validade__isnull=True)
         ).aggregate(total=Sum('quantidade'))['total'] or 0
+
+    @estoque.setter
+    def estoque(self, value):
+        self._estoque = value
 
     def __str__(self):
         return f'{self.nome}'
