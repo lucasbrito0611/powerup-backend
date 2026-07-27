@@ -34,3 +34,5 @@ Thumbs.db
 media/*
 !media/.gitkeep
 
+#Codegraph
+.codegraph
