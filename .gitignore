@@ -29,3 +29,8 @@ Thumbs.db
 **/migrations/*.log
 # Descomente se quiser ignorar os arquivos de migração
 # **/migrations/*.py
+
+# Arquivos de mídia / Uploads
+media/*
+!media/.gitkeep
+
