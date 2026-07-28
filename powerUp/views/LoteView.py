@@ -2,22 +2,22 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.filters import OrderingFilter
+from rest_framework.filters import OrderingFilter, SearchFilter
 
 from powerUp.models import Lote
 from powerUp.serializers.LoteSerializer import LoteSerializer
-from powerUp.permissions import IsPerfilAdmin # Usando sua permissão customizada
+from powerUp.permissions import IsPerfilAdmin
 
 class LoteViewSet(viewsets.ModelViewSet):
-    queryset = Lote.objects.all().order_by('validade') # Ordena por validade padrão
+    queryset = Lote.objects.all().order_by('-data_entrada', '-id') 
     serializer_class = LoteSerializer
-    permission_classes = [IsPerfilAdmin] # Apenas admin pode mexer no estoque
-    pagination_class = None
-    
+    permission_classes = [IsPerfilAdmin]
+
     # Configurações de filtro
-    filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['produto'] # Permite filtrar: /lotes/?produto=ID
-    ordering_fields = ['validade', 'quantidade', 'data_entrada'] # Permite ordenar na URL
+    filter_backends = [DjangoFilterBackend, OrderingFilter, SearchFilter]
+    filterset_fields = ['produto'] 
+    ordering_fields = ['validade', 'quantidade', 'data_entrada'] 
+    search_fields = ['produto__nome'] 
 
     @action(detail=False, methods=['post'], url_path='bulk_delete')
     def bulk_delete(self, request):
