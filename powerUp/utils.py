@@ -40,23 +40,36 @@ def custom_exception_handler(exc, context):
 # --- VALIDAÇÃO DE UPLOAD SEGURO (Devoluções) ---
 import filetype
 
-ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'application/pdf']
-MAX_UPLOAD_SIZE = 5 * 1024 * 1024  # 5MB
+# Tipos de arquivo aceitos para evidência de devolução: fotos e vídeos curtos
+ALLOWED_MIME_TYPES_DEVOLUCAO = [
+    # Imagens
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    # Vídeos curtos
+    'video/mp4',
+    'video/quicktime',   # .mov
+    'video/webm',
+]
+
+MAX_UPLOAD_SIZE_DEVOLUCAO = 50 * 1024 * 1024 
 
 def validar_arquivo_devolucao(arquivo):
     if not arquivo:
         return
-    
-    if arquivo.size > MAX_UPLOAD_SIZE:
-        raise ValidationError("Arquivo muito grande. Máximo 5MB.")
-        
+
+    if arquivo.size > MAX_UPLOAD_SIZE_DEVOLUCAO:
+        raise ValidationError("Arquivo muito grande. Máximo 50MB.")
+
     try:
-        # Lê os primeiros 2048 bytes para analisar a assinatura binária
+        # Lê os primeiros 2048 bytes para analisar a assinatura binária (magic bytes)
         kind = filetype.guess(arquivo.read(2048))
         arquivo.seek(0)
-        
-        if kind is None or kind.mime not in ALLOWED_MIME_TYPES:
-            raise ValidationError("Tipo de arquivo não permitido ou corrompido.")
+
+        if kind is None or kind.mime not in ALLOWED_MIME_TYPES_DEVOLUCAO:
+            raise ValidationError(
+                "Tipo de arquivo não permitido. Envie uma foto (JPG, PNG, WEBP) ou vídeo (MP4, MOV, WEBM)."
+            )
     except Exception as e:
         if isinstance(e, ValidationError):
             raise e
